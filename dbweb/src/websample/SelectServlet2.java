@@ -1,11 +1,12 @@
 package websample;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -14,18 +15,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 
-@WebServlet(name = "SelectServlet", urlPatterns = {"/servlet/websample.SelectServlet"})
-public class SelectServlet extends HttpServlet{
+@WebServlet(name = "SelectServlet2", urlPatterns = {"/servlet/websample.SelectServlet2"})
+public class SelectServlet2 extends HttpServlet{
 
 
     public void doGet(HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {
 
-        response.setContentType("text/plain; charset=Windows-31J");
-        PrintWriter out = response.getWriter();
 
-        String sql = "SELECT * FROM ACCOUNT";
+    	String sql = "SELECT * FROM ACCOUNT";
 
         Connection con = null;
         Statement smt = null;
@@ -35,13 +34,21 @@ public class SelectServlet extends HttpServlet{
 			smt = con.createStatement();
 			ResultSet rs = smt.executeQuery(sql);
 
+
+			List list = new ArrayList();
+
 			while(rs.next()){
-				out.println(
-					"ID=" + rs.getInt("ID")
-					+ ",TITLE=" + rs.getString("NAME")
-					+ ",PRICE=" + rs.getInt("MONEY")
-				);
+
+			    Account account = new Account();
+			    account.setId(rs.getInt("ID"));
+			    account.setName(rs.getString("NAME"));
+			    account.setMoney(rs.getInt("MONEY"));
+
+			    list.add(account);
 			}
+
+			request.setAttribute("list", list);
+
 
         }catch(SQLException e){
             throw new ServletException(e);
@@ -53,5 +60,8 @@ public class SelectServlet extends HttpServlet{
                 try{con.close();}catch(SQLException ignore){}
             }
         }
+
+
+        request.getRequestDispatcher("/select.jsp").forward(request, response);
     }
 }
